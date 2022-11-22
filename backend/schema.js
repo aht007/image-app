@@ -9,12 +9,9 @@ const createUserTable = () => {
     const query = `
         CREATE TABLE IF NOT EXISTS User (
         id integer PRIMARY KEY,
-        firstname text,
-        lastname text,
+        fullname text,
         email text,
-        age integer,
         password text,
-        gender boolean
         )`;
     return database.run(query);
 }
@@ -52,12 +49,9 @@ const UserType = new graphql.GraphQLObjectType({
     name: "User",
     fields: {
         id: { type: graphql.GraphQLID },
-        firstname: { type: graphql.GraphQLString },
-        lastname: { type: graphql.GraphQLString },
+        fullname: { type: graphql.GraphQLString },
         email: { type: graphql.GraphQLString },
-        age: { type: graphql.GraphQLInt },
         password: { type: graphql.GraphQLString },
-        gender: { type: graphql.GraphQLBoolean },
     }
 });
 
@@ -186,29 +180,20 @@ var mutationType = new graphql.GraphQLObjectType({
             type: UserType,
             //argument of mutation createUser to get from request
             args: {
-                firstname: {
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLString)
-                },
-                lastname: {
+                fullname: {
                     type: new graphql.GraphQLNonNull(graphql.GraphQLString)
                 },
                 email: {
                     type: new graphql.GraphQLNonNull(graphql.GraphQLString)
                 },
-                age: {
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLInt) 
-                },
                 password: {
                     type: new graphql.GraphQLNonNull(graphql.GraphQLString)
                 },
-                gender: {
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLBoolean)
-                },
             },
-            resolve: (root, { firstname, lastname, email, age, password, gender }) => {
+            resolve: (root, { fullname, email, password }) => {
                 return new Promise((resolve, reject) => {
                     //raw SQLite to insert a new user
-                    database.run('INSERT INTO User (firstname, lastname, email, age, password, gender) VALUES (?,?,?,?,?,?);', [firstname, lastname, email, age, password, gender], (err) => {
+                    database.run('INSERT INTO User (fullname, email, password) VALUES (?,?,?,?,?,?);', [fullname, email, password], (err) => {
                         if (err) {
                             reject(null);
                         }
@@ -216,12 +201,9 @@ var mutationType = new graphql.GraphQLObjectType({
 
                             resolve({
                                 id: row["id"],
-                                firstname: firstname,
-                                lastname: lastname,
-                                email: email,
-                                age: age,
-                                password: password,
-                                gender: gender
+                                fullname,
+                                email,
+                                password
                             });
                         });
                     });
@@ -286,44 +268,6 @@ var mutationType = new graphql.GraphQLObjectType({
                                 image_id: image_id
                             });
                         });
-                    });
-                })
-            }
-        },
-        //mutation for update
-        updateUser: {
-            //type of object to return afater update in SQLite
-            type: graphql.GraphQLString,
-            args: {
-                id:{
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLID)
-                },
-                firstname: {
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLString)
-                },
-                lastname: {
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLString)
-                },
-                email: {
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLString)
-                },
-                age: {
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLInt) 
-                },
-                password: {
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLString)
-                },
-                gender: {
-                    type: new graphql.GraphQLNonNull(graphql.GraphQLBoolean)
-                },
-            },
-            resolve: (root, { firstname, lastname, email, age, password, gender,id }) => {
-                return new Promise((resolve, reject) => {
-                    database.run('UPDATE User SET firstname = (?), lastname = (?), email = (?), age = (?), password = (?), gender = (?) WHERE id = (?);', [firstname, lastname, email, age, password, gender, id], (err) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        resolve(`User #${id} updated`);
                     });
                 })
             }
