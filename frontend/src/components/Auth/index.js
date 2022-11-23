@@ -24,7 +24,8 @@ const LOGIN_QUERY = gql`
     $password: String!
   ) {
     Login(email: $email, password: $password) {
-      id
+      id,
+      fullname
     }
   }
 `;
@@ -53,6 +54,7 @@ const Index = () => {
 
                     alert("Login Successful")
                     localStorage.setItem("userId", data.Login.id);
+                    localStorage.setItem("username", data.Login.fullname);
                     navigate("/home");
                 }
                 else{
@@ -145,11 +147,11 @@ const Index = () => {
         <div className="Auth-form-container">
             <form className="Auth-form" onSubmit={sumbitSignUp}>
                 <div className="Auth-form-content">
-                    <h3 className="Auth-form-title">Sign In</h3>
+                    <h3 className="Auth-form-title">Sign UP</h3>
                     <div className="text-center">
                         Already registered?{" "}
                         <span className="link-primary" onClick={changeAuthMode}>
-                            Sign In
+                            Sign in
                         </span>
                     </div>
                     <div className="form-group mt-3">

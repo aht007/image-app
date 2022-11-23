@@ -70,7 +70,7 @@ const Navbar = () => {
     return (
         <div>
             <nav className="navbar navbar navbar-dark bg-dark justify-content-between">
-                <a className="navbar-brand m-2">Welcome</a>
+                <a className="navbar-brand m-2">Welcome {localStorage.getItem("username")}</a>
                 <button className="btn btn-outline-primary my-2 my-sm-0" type="button"  onClick={handleShow}>Upload Picture</button>
                 <button className="btn btn-outline-success my-2 my-sm-0 m-4" type="button" onClick={logout}>Logout</button>
             </nav>
