@@ -1,8 +1,9 @@
 import React from 'react'
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 
 import Post from './post.js'
 import Header from '../Navbar'
+import { useNavigate } from "react-router-dom";
 
 const FETCH_IMAGES = gql`
 query ImagesQuery{
@@ -32,8 +33,16 @@ const Home = () => {
             }
            }
     });
+    const navigate = useNavigate();
+    const isLoggedIn = ()=>{
+        const id = localStorage.getItem('userId');
+        if (!id){
+            navigate("/auth");
+        }
+    }
     return (
         <>
+        {isLoggedIn()}
             <Header />
             <div className='container'>
 
