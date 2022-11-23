@@ -2,7 +2,7 @@ const graphql = require("graphql");
 const sqlite3 = require('sqlite3').verbose();
 
 //create a database if no exists
-const database = new sqlite3.Database("../micro-blog.db");
+const database = new sqlite3.Database("./app.db");
 
 //create a table to insert User
 const createUserTable = () => {
@@ -11,7 +11,7 @@ const createUserTable = () => {
         id integer PRIMARY KEY,
         fullname text,
         email text,
-        password text,
+        password text
         )`;
     return database.run(query);
 }
@@ -33,7 +33,7 @@ const createImageLikes = () => {
         id integer PRIMARY KEY,
         user_id integer,
         image_id integer,
-        FOREIGN KEY (user_id) REFERENCES User(id)
+        FOREIGN KEY (user_id) REFERENCES User(id),
         FOREIGN KEY (image_id) REFERENCES Images(id)
         )`;
     return database.run(query);
@@ -70,6 +70,13 @@ const ImageLikeType = new graphql.GraphQLObjectType({
         id: { type: graphql.GraphQLID },
         user_id: { type: graphql.GraphQLID },
         image_id: { type: graphql.GraphQLID },
+    }
+});
+
+const GetImageLikesType = new graphql.GraphQLObjectType({
+    name: "GetImageLikesType",
+    fields: {
+        likes: { type: graphql.GraphQLInt },
     }
 });
 
@@ -113,6 +120,28 @@ var queryType = new graphql.GraphQLObjectType({
                 });
             }
         },
+        Login: {
+            type: UserType,
+            args: {
+                email: {
+                    type: new graphql.GraphQLNonNull(graphql.GraphQLString)
+                },
+                password: {
+                    type: new graphql.GraphQLNonNull(graphql.GraphQLString)
+                },
+            },
+            resolve: (root, { email,password }, context, info) => {
+                return new Promise((resolve, reject) => {
+
+                    database.all("SELECT * FROM User WHERE email = (?) and password=(?);", [email, password], function (err, rows) {
+                        if (err) {
+                            reject(null);
+                        }
+                        resolve(rows[0]);
+                    });
+                });
+            }
+        },
         //first query to select all images
         Images: {
             type: graphql.GraphQLList(ImageType),
@@ -123,13 +152,14 @@ var queryType = new graphql.GraphQLObjectType({
                         if (err) {
                             reject([]);
                         }
+
                         resolve(rows);
                     });
                 });
             }
         },
         //second query to select image by id
-        Images: {
+        Image: {
             type: ImageType,
             args: {
                 id: {
@@ -149,7 +179,7 @@ var queryType = new graphql.GraphQLObjectType({
             }
         },
         ImageLikes: {
-            type: graphql.GraphQLList(ImageLikeType),
+            type: GetImageLikesType,
             args:{
                 image_id:{
                     type: new graphql.GraphQLNonNull(graphql.GraphQLID)
@@ -158,11 +188,13 @@ var queryType = new graphql.GraphQLObjectType({
             resolve: (root, { image_id }, context, info) => {
                 return new Promise((resolve, reject) => {
 
-                    database.all("SELECT * FROM ImageLikes WHERE image_id = (?);", [image_id], function (err, rows) {
+                    database.all("SELECT COUNT(*) FROM ImageLikes WHERE image_id = (?);", [image_id], function (err, rows) {
                         if (err) {
                             reject(null);
                         }
-                        resolve(rows);
+                        resolve({
+                            likes: rows[0]["COUNT(*)"]
+                         });
                     });
                 });
             }
@@ -193,7 +225,7 @@ var mutationType = new graphql.GraphQLObjectType({
             resolve: (root, { fullname, email, password }) => {
                 return new Promise((resolve, reject) => {
                     //raw SQLite to insert a new user
-                    database.run('INSERT INTO User (fullname, email, password) VALUES (?,?,?,?,?,?);', [fullname, email, password], (err) => {
+                    database.run('INSERT INTO User (fullname, email, password) VALUES (?,?,?);', [fullname, email, password], (err) => {
                         if (err) {
                             reject(null);
                         }

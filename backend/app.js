@@ -1,17 +1,8 @@
 const Express  = require('express');
 const ExpressGraphQL = require('express-graphql').graphqlHTTP;
 const schema = require("./schema");
-const mongoose = require('mongoose');
-const {
-    GraphQLSchema,
-    GraphQLObjectType,
-    GraphQLString,
-    GraphQLList,
-    GraphQLNonNull,
-    GraphQLID,
-    GraphQLInt,
-    GraphQLBoolean
-} = require('graphql');
+const cors = require('cors')
+
 
 const app = Express();
 
@@ -103,6 +94,7 @@ const database = new sqlite3.Database("./app.db");
 // 	})
 // });
 
+app.use(cors())
 app.use("/graphql", ExpressGraphQL({schema:schema.schema, graphiql: true}));
 
 app.listen(3001, () => {
