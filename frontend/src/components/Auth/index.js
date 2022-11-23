@@ -71,8 +71,6 @@ const Index = () => {
 
     const SumbitLogin = (e) => {
         e.preventDefault();
-        console.log(email)
-        console.log(password);
         getLogin({
             variables:{
                 password:password,
@@ -86,9 +84,7 @@ const Index = () => {
 
     const sumbitSignUp = (e) => {
         e.preventDefault();
-        console.log(email)
-        console.log(password)
-        console.log(fullName)
+
         signup({
             variables: {
                 fullname: fullName,
