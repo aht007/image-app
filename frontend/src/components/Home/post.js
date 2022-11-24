@@ -1,5 +1,5 @@
 import React from 'react'
-import { gql, useMutation, useLazyQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 
 const LIKE_MUTATION = gql`
 mutation ImageLike(
@@ -30,6 +30,7 @@ const Post = (props) => {
         LIKE_MUTATION,{
             onCompleted: data=>{
                 alert("Image Liked");
+                window.location.reload();
             }
         }
     );
@@ -47,29 +48,14 @@ const Post = (props) => {
         }
     }
 
-    const [getLikes, { likesError }] = useLazyQuery(
+    const {likesLoading, likesError, data} = useQuery(
         GET_IMAGE_LIKES,{
-            onCompleted: (data) => {
-                if(data)
-                {
-                    const likes = data.ImageLikes.likes
-                    alert(`This image has been liked ${likes} times`)
-                }
-                else{
-                    alert("Error fetching likes: "+likesError)
-                }
-               },
-               fetchPolicy: 'network-only',
+            variables:{
+                image_id:parseInt(props.data.id)
+            }
         }
     );
 
-    const getImageLikes = (imageId)=>{
-        getLikes({
-            variables:{
-                image_id:parseInt(imageId)
-            }
-        })
-    }
     return (
         <div className="col" id={props.data.id}>
             <div className="card border-secondary bg-light mb-3" style={{ width: "20rem", height: "30rem" }}>
@@ -78,7 +64,7 @@ const Post = (props) => {
                     <button className="btn btn-primary" id={props.data.id} onClick={()=>likeImage(props.data.id)}>Like</button>
                 </div>
                 <div className='card-footer'>
-                <button className="btn btn-primary" onClick={()=> getImageLikes(props.data.id)}>See All Like</button>
+                Likes: {data ?data.ImageLikes.likes:<></>}
                 </div>
             </div>
         </div>
