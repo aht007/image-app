@@ -41,7 +41,9 @@ const Index = () => {
         SIGNUP_MUTATION,{
             onCompleted: data=>{
                 alert("Signup Complete");
-                changeAuthMode()
+                localStorage.setItem("userId", data.createUser.id);
+                localStorage.setItem("username", data.createUser.fullname);
+                navigate("/home");
             }
         }
     );

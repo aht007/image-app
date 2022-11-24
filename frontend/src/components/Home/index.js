@@ -15,12 +15,6 @@ query ImagesQuery{
 }
 `;
 
-// const cardData = [
-//     { id: 1, user_id: 1, image_link: "http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/back03.jpg" }
-//     , { id: 2, user_id: 1, image_link: "http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/back03.jpg" },
-//     { id: 3, user_id: 1, image_link: "http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/back03.jpg" }
-// ]
-
 const Home = () => {
     const { loading, error, data } = useQuery(FETCH_IMAGES,{
         onCompleted: (data) => {
